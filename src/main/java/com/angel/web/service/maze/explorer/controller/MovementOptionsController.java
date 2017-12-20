@@ -4,6 +4,8 @@ import com.angel.web.service.maze.explorer.MazeFacilitator;
 import com.angel.web.service.maze.explorer.MazeSession;
 import com.angel.web.service.maze.explorer.SessionManager;
 import com.angel.web.service.maze.explorer.domain.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -11,19 +13,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 @RestController
 public class MovementOptionsController {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private MazeFacilitator mazeFacilitator;
 
     @RequestMapping(method = RequestMethod.GET, value = "/movement-options")
     public Collection<PlayerDirection> getMovementOptions(@RequestParam(value = "sessionId") Long sessionId) {
-        Set<PlayerDirection> options = new HashSet<>();
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
         PlayerPosition lastPosition = mazeSession.getLastPosition();
+        if (lastPosition == null) {
+            logger.error("No options available until game starts");
+            return Collections.emptySet();
+        }
+        Set<PlayerDirection> options = new HashSet<>();
         Maze maze = mazeFacilitator.getMazeByLevel(mazeSession.getLevel());
         if (isAllowedMovingToPosition(lastPosition.getX() + 1, lastPosition.getY(), maze)) {
             options.add(PlayerDirection.EAST);
