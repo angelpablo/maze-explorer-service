@@ -42,6 +42,7 @@ public class ChangeDirectionController {
                 lastPosition.getX(),
                 lastPosition.getY(),
                 MoveStatus.DIRECTION_CHANGED.getStatusDescription());
+        mazeSession.setLastPosition(newPosition);
         return newPosition;
 
     }
