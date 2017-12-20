@@ -6,6 +6,7 @@ public enum MoveStatus {
     START("At starting point"),
     EXIT_FOUND("End game; exit found"),
     DIRECTION_CHANGED("Success, direction changed."),
+    NO_GAME_STARTED("Error, you need to start game first."),
     OUT_OF_MAZE("Error, coordinates don't exist.");
 
     private String statusDescription;

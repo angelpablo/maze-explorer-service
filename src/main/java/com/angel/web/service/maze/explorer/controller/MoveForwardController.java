@@ -22,9 +22,13 @@ public class MoveForwardController {
     @RequestMapping(method = RequestMethod.PUT, value = "/forward")
     public PlayerPosition moveForward(@RequestParam(value = "sessionId") Long sessionId) {
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
+        PlayerPosition lastPosition = mazeSession.getLastPosition();
+        if (lastPosition == null) {
+            return new PlayerPosition(null, -1, -1, MoveStatus.NO_GAME_STARTED.getStatusDescription());
+        }
+
         Maze maze = mazeFacilitator.getMazeByLevel(mazeSession.getLevel());
         Maze.Point size = maze.getSize();
-        PlayerPosition lastPosition = mazeSession.getLastPosition();
         int newX = 0;
         int newY = 0;
 
