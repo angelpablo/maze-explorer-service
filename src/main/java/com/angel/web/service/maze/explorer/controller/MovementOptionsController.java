@@ -25,24 +25,28 @@ public class MovementOptionsController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/movement-options")
     public Collection<PlayerDirection> getMovementOptions(@RequestParam(value = "sessionId") Long sessionId) {
+        if (sessionId == null || sessionId.compareTo(Long.valueOf(0)) == 0) {
+            logger.error("Invalid session: [sessionId = " + sessionId + "]");
+            return Collections.emptySet();
+        }
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
         PlayerPosition lastPosition = mazeSession.getLastPosition();
         if (lastPosition == null) {
-            logger.error("No options available until game starts");
+            logger.error("No options available until game starts: [sessionId = " + sessionId + "]");
             return Collections.emptySet();
         }
         Set<PlayerDirection> options = new HashSet<>();
         Maze maze = mazeFacilitator.getMazeByLevel(mazeSession.getLevel());
-        if (isAllowedMovingToPosition(lastPosition.getX() + 1, lastPosition.getY(), maze)) {
+        if (isAllowedMovingToPosition(lastPosition.getX(), lastPosition.getY() + 1, maze)) {
             options.add(PlayerDirection.EAST);
         }
-        if (isAllowedMovingToPosition(lastPosition.getX() - 1, lastPosition.getY(), maze)) {
+        if (isAllowedMovingToPosition(lastPosition.getX(), lastPosition.getY() - 1, maze)) {
             options.add(PlayerDirection.WEST);
         }
-        if (isAllowedMovingToPosition(lastPosition.getX(), lastPosition.getY() + 1, maze)) {
+        if (isAllowedMovingToPosition(lastPosition.getX() + 1, lastPosition.getY(), maze)) {
             options.add(PlayerDirection.NORTH);
         }
-        if (isAllowedMovingToPosition(lastPosition.getX(), lastPosition.getY() - 1, maze)) {
+        if (isAllowedMovingToPosition(lastPosition.getX() - 1, lastPosition.getY(), maze)) {
             options.add(PlayerDirection.SOUTH);
         }
 

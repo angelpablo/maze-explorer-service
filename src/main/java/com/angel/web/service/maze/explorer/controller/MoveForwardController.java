@@ -21,10 +21,13 @@ public class MoveForwardController {
 
     @RequestMapping(method = RequestMethod.PUT, value = "/forward")
     public PlayerPosition moveForward(@RequestParam(value = "sessionId") Long sessionId) {
+        if (sessionId == null || sessionId.compareTo(Long.valueOf(0)) == 0) {
+            return CotrollerUtils.createNoSessionPlayerPosition();
+        }
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
         PlayerPosition lastPosition = mazeSession.getLastPosition();
         if (lastPosition == null) {
-            return new PlayerPosition(null, -1, -1, MoveStatus.NO_GAME_STARTED.getStatusDescription());
+            return CotrollerUtils.createNoGameStartedPlayerPosition();
         }
 
         Maze maze = mazeFacilitator.getMazeByLevel(mazeSession.getLevel());
@@ -35,20 +38,20 @@ public class MoveForwardController {
         PlayerDirection direction = lastPosition.getDirection();
         switch (direction) {
             case NORTH:
-                newX = lastPosition.getX();
-                newY = lastPosition.getY() + 1;
-                break;
-            case SOUTH:
-                newX = lastPosition.getX();
-                newY = lastPosition.getY() -1;
-                break;
-            case EAST:
                 newX = lastPosition.getX() + 1;
                 newY = lastPosition.getY();
                 break;
-            case WEST:
-                newX = lastPosition.getX() -1;
+            case SOUTH:
+                newX = lastPosition.getX() - 1;
                 newY = lastPosition.getY();
+                break;
+            case EAST:
+                newX = lastPosition.getX();
+                newY = lastPosition.getY() + 1;
+                break;
+            case WEST:
+                newX = lastPosition.getX();
+                newY = lastPosition.getY() - 1;
                 break;
         }
         if (newX < 0 || newY < 0 || newX > size.getX() || newY > size.getY()) {

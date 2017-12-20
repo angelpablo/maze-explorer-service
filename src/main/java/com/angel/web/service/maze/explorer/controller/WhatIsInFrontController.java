@@ -17,32 +17,40 @@ public class WhatIsInFrontController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/what-is-infront")
     public String getWhatIsInFront(@RequestParam(value = "sessionId") Long sessionId) {
+        if (CotrollerUtils.isInvalidSession(sessionId)) {
+            return CotrollerUtils.createNoSessionString();
+        }
+
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
+        PlayerPosition lastPosition = mazeSession.getLastPosition();
+        if (lastPosition == null) {
+            return CotrollerUtils.createNoGameString();
+        }
+
         Integer level = mazeSession.getLevel();
         Maze maze = mazeFacilitator.getMazeByLevel(level);
         Maze.Point size = maze.getSize();
 
-        PlayerPosition lastPosition = mazeSession.getLastPosition();
         int newX = 0;
         int newY = 0;
 
         PlayerDirection direction = lastPosition.getDirection();
         switch (direction) {
             case NORTH:
-                newX = lastPosition.getX();
-                newY = lastPosition.getY() + 1;
-                break;
-            case SOUTH:
-                newX = lastPosition.getX();
-                newY = lastPosition.getY() -1;
-                break;
-            case EAST:
                 newX = lastPosition.getX() + 1;
                 newY = lastPosition.getY();
                 break;
-            case WEST:
-                newX = lastPosition.getX() -1;
+            case SOUTH:
+                newX = lastPosition.getX() - 1;
                 newY = lastPosition.getY();
+                break;
+            case EAST:
+                newX = lastPosition.getX();
+                newY = lastPosition.getY() + 1;
+                break;
+            case WEST:
+                newX = lastPosition.getX();
+                newY = lastPosition.getY() - 1;
                 break;
         }
         if (newX < 0 || newY < 0 || newX > size.getX() || newY > size.getY()) {

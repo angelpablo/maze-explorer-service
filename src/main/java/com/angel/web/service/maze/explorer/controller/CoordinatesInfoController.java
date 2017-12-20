@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class CoordinatesInfoController {
+
     @Autowired
     private MazeFacilitator mazeFacilitator;
 
@@ -22,6 +23,10 @@ public class CoordinatesInfoController {
     public CoordinatesInfo getCoordinatesInfo(@RequestParam(value = "sessionId") Long sessionId,
                                               @RequestParam(value = "x", defaultValue = "0") Integer x,
                                               @RequestParam(value = "y", defaultValue = "0") Integer y) {
+        if (sessionId == null || sessionId.compareTo(Long.valueOf(0)) == 0) {
+            return CotrollerUtils.createNoSessionCoordinatesInfo();
+        }
+
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
         Integer level = mazeSession.getLevel();
         Maze mazeByLevel = mazeFacilitator.getMazeByLevel(level);

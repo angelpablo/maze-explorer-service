@@ -6,7 +6,7 @@ Assumptions:
 
 Known issues:
 1. This is an unbounded requests-acceptor
-2. North-South goes with "y", and East-West goes with "x"
+2. North-South goes with "y", and East-West goes with "x": FIXED.
 3. Session management is weak as it is un-bounded
 
 Pending:
