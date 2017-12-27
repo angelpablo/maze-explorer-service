@@ -24,16 +24,16 @@ public class MovementOptionsController {
     private MazeFacilitator mazeFacilitator;
 
     @RequestMapping(method = RequestMethod.GET, value = "/movement-options")
-    public Collection<PlayerDirection> getMovementOptions(@RequestParam(value = "sessionId") Long sessionId) {
-        if (sessionId == null || sessionId.compareTo(Long.valueOf(0)) == 0) {
-            logger.error("Invalid session: [sessionId = " + sessionId + "]");
-            return Collections.emptySet();
+    public Collection<PlayerDirection> getMovementOptions(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException {
+        if (CotrollerUtils.isInvalidSession(sessionId)) {
+            logger.error("Bad sessionId: [" + sessionId +"]");
+            throw new ExplorerSessionException("No active session");
         }
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
         PlayerPosition lastPosition = mazeSession.getLastPosition();
         if (lastPosition == null) {
-            logger.error("No options available until game starts: [sessionId = " + sessionId + "]");
-            return Collections.emptySet();
+            logger.error("Bad session, bad boy.: [" + sessionId +"]");
+            throw new ExplorerSessionException("No active session");
         }
         Set<PlayerDirection> options = new HashSet<>();
         Maze maze = mazeFacilitator.getMazeByLevel(mazeSession.getLevel());

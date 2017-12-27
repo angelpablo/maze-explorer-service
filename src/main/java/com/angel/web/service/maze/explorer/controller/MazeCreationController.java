@@ -25,6 +25,9 @@ public class MazeCreationController {
     @RequestMapping(method = RequestMethod.POST, value = "/maze")
     public NewMazeSessionConfirmation createNewMaze(@RequestParam(value = "level", defaultValue = "1") Integer level) {
         Maze maze = mazeFacilitator.getMazeByLevel(level);
+        if (maze == null) {
+            // TODO funky level requested.
+        }
         MazeDescription mazeDescription = MazeDescriptionGenerator.getMazeDescription(maze, level);
 
         MazeSession session = new MazeSession(level, sessionCounter.incrementAndGet());

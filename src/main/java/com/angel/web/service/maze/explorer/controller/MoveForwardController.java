@@ -20,15 +20,19 @@ public class MoveForwardController {
     private MazeFacilitator mazeFacilitator;
 
     @RequestMapping(method = RequestMethod.PUT, value = "/forward")
-    public PlayerPosition moveForward(@RequestParam(value = "sessionId") Long sessionId) {
-        if (sessionId == null || sessionId.compareTo(Long.valueOf(0)) == 0) {
-            return CotrollerUtils.createNoSessionPlayerPosition();
+    public PlayerPosition moveForward(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException {
+        if (CotrollerUtils.isInvalidSession(sessionId)) {
+            logger.error("Bad sessionId: [" + sessionId +"]");
+            throw new ExplorerSessionException("No active session");
         }
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
+        if (mazeSession == null) {
+            logger.error("Bad session, bad boy.: [" + sessionId +"]");
+            throw new ExplorerSessionException("No active session");
+        }
         PlayerPosition lastPosition = mazeSession.getLastPosition();
         if (lastPosition == null) {
-            return CotrollerUtils.createNoGameStartedPlayerPosition();
-        }
+            return new PlayerPosition(null, -1, -1, MoveStatus.NO_GAME_STARTED.getStatusDescription());        }
 
         Maze maze = mazeFacilitator.getMazeByLevel(mazeSession.getLevel());
         Maze.Point size = maze.getSize();

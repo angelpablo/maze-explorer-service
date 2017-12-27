@@ -7,6 +7,8 @@ import com.angel.web.service.maze.explorer.domain.CoordinatesInfo;
 import com.angel.web.service.maze.explorer.domain.Maze;
 import com.angel.web.service.maze.explorer.domain.MazeElement;
 import com.angel.web.service.maze.explorer.domain.MazeOutOfBoundsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class CoordinatesInfoController {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private MazeFacilitator mazeFacilitator;
@@ -22,12 +25,17 @@ public class CoordinatesInfoController {
     @RequestMapping(method = RequestMethod.GET, value = "/coordinates")
     public CoordinatesInfo getCoordinatesInfo(@RequestParam(value = "sessionId") Long sessionId,
                                               @RequestParam(value = "x", defaultValue = "0") Integer x,
-                                              @RequestParam(value = "y", defaultValue = "0") Integer y) {
-        if (sessionId == null || sessionId.compareTo(Long.valueOf(0)) == 0) {
-            return CotrollerUtils.createNoSessionCoordinatesInfo();
+                                              @RequestParam(value = "y", defaultValue = "0") Integer y) throws ExplorerSessionException {
+        if (CotrollerUtils.isInvalidSession(sessionId)) {
+            logger.error("Bad sessionId: [" + sessionId +"]");
+            throw new ExplorerSessionException("No active session");
         }
 
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
+        if (mazeSession == null) {
+            logger.error("Bad session, bad boy.: [" + sessionId +"]");
+            throw new ExplorerSessionException("No active session");
+        }
         Integer level = mazeSession.getLevel();
         Maze mazeByLevel = mazeFacilitator.getMazeByLevel(level);
         MazeElement mazeElementAt = null;

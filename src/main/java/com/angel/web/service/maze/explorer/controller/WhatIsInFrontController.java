@@ -4,6 +4,8 @@ import com.angel.web.service.maze.explorer.MazeFacilitator;
 import com.angel.web.service.maze.explorer.MazeSession;
 import com.angel.web.service.maze.explorer.SessionManager;
 import com.angel.web.service.maze.explorer.domain.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -12,16 +14,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class WhatIsInFrontController {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private MazeFacilitator mazeFacilitator;
 
     @RequestMapping(method = RequestMethod.GET, value = "/what-is-infront")
-    public String getWhatIsInFront(@RequestParam(value = "sessionId") Long sessionId) {
+    public String getWhatIsInFront(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException {
         if (CotrollerUtils.isInvalidSession(sessionId)) {
-            return CotrollerUtils.createNoSessionString();
+            logger.error("Bad sessionId: [" + sessionId +"]");
+            throw new ExplorerSessionException("No active session");
         }
 
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
+        if (mazeSession == null) {
+            logger.error("Bad session, bad boy.: [" + sessionId +"]");
+            throw new ExplorerSessionException("No active session");
+        }
         PlayerPosition lastPosition = mazeSession.getLastPosition();
         if (lastPosition == null) {
             return CotrollerUtils.createNoGameString();

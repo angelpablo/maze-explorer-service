@@ -5,35 +5,46 @@ import com.angel.web.service.maze.explorer.SessionManager;
 import com.angel.web.service.maze.explorer.domain.MoveStatus;
 import com.angel.web.service.maze.explorer.domain.PlayerDirection;
 import com.angel.web.service.maze.explorer.domain.PlayerPosition;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ChangeDirectionController {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping(method = RequestMethod.PUT, value = "/change-direction-north")
-    public PlayerPosition changePlayerDirectionNorth(@RequestParam(value = "sessionId") Long sessionId) {
+    public PlayerPosition changePlayerDirectionNorth(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException {
         return changeDirectionTo(PlayerDirection.NORTH, sessionId);    }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/change-direction-south")
-    public PlayerPosition changePlayerDirectionSouth(@RequestParam(value = "sessionId") Long sessionId) {
+    public PlayerPosition changePlayerDirectionSouth(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException {
         return changeDirectionTo(PlayerDirection.SOUTH, sessionId);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/change-direction-east")
-    public PlayerPosition changePlayerDirectionEast(@RequestParam(value = "sessionId") Long sessionId) {
+    public PlayerPosition changePlayerDirectionEast(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException {
         return changeDirectionTo(PlayerDirection.EAST, sessionId);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/change-direction-west")
-    public PlayerPosition changePlayerDirectionWest(@RequestParam(value = "sessionId") Long sessionId) {
+    public PlayerPosition changePlayerDirectionWest(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException {
         return changeDirectionTo(PlayerDirection.WEST, sessionId);
     }
 
-    private PlayerPosition changeDirectionTo(PlayerDirection direction, Long sessionId) {
+    private PlayerPosition changeDirectionTo(PlayerDirection direction, Long sessionId) throws ExplorerSessionException {
+        if (CotrollerUtils.isInvalidSession(sessionId)) {
+            logger.error("Bad sessionId: [" + sessionId +"]");
+            throw new ExplorerSessionException("No active session");
+        }
+
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
+        if (mazeSession == null) {
+            logger.error("Possibly expired sessionId: [" + sessionId +"]");
+            throw new ExplorerSessionException("No active session");
+        }
         PlayerPosition lastPosition = mazeSession.getLastPosition();
         if (lastPosition.getDirection().equals(direction)) {
             return lastPosition;
@@ -46,5 +57,4 @@ public class ChangeDirectionController {
         return newPosition;
 
     }
-
 }
