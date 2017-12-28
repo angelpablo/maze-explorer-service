@@ -16,25 +16,25 @@ public class ChangeDirectionController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping(method = RequestMethod.PUT, value = "/change-direction-north")
-    public PlayerPosition changePlayerDirectionNorth(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException {
+    public PlayerPosition changePlayerDirectionNorth(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException, GameNotStartedException {
         return changeDirectionTo(PlayerDirection.NORTH, sessionId);    }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/change-direction-south")
-    public PlayerPosition changePlayerDirectionSouth(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException {
+    public PlayerPosition changePlayerDirectionSouth(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException, GameNotStartedException {
         return changeDirectionTo(PlayerDirection.SOUTH, sessionId);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/change-direction-east")
-    public PlayerPosition changePlayerDirectionEast(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException {
+    public PlayerPosition changePlayerDirectionEast(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException, GameNotStartedException {
         return changeDirectionTo(PlayerDirection.EAST, sessionId);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/change-direction-west")
-    public PlayerPosition changePlayerDirectionWest(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException {
+    public PlayerPosition changePlayerDirectionWest(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException, GameNotStartedException {
         return changeDirectionTo(PlayerDirection.WEST, sessionId);
     }
 
-    private PlayerPosition changeDirectionTo(PlayerDirection direction, Long sessionId) throws ExplorerSessionException {
+    private PlayerPosition changeDirectionTo(PlayerDirection direction, Long sessionId) throws ExplorerSessionException, GameNotStartedException {
         if (CotrollerUtils.isInvalidSession(sessionId)) {
             logger.error("Bad sessionId: [" + sessionId +"]");
             throw new ExplorerSessionException("No active session");
@@ -45,7 +45,12 @@ public class ChangeDirectionController {
             logger.error("Possibly expired sessionId: [" + sessionId +"]");
             throw new ExplorerSessionException("No active session");
         }
+
         PlayerPosition lastPosition = mazeSession.getLastPosition();
+        if (lastPosition == null) {
+            logger.error("Attempt to change direction on a non-started game: [sessionId=" + sessionId + "]");
+            throw new GameNotStartedException("No active game");
+        }
         if (lastPosition.getDirection().equals(direction)) {
             return lastPosition;
         }

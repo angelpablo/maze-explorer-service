@@ -20,7 +20,7 @@ public class MoveForwardController {
     private MazeFacilitator mazeFacilitator;
 
     @RequestMapping(method = RequestMethod.PUT, value = "/forward")
-    public PlayerPosition moveForward(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException {
+    public PlayerPosition moveForward(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException, GameNotStartedException {
         if (CotrollerUtils.isInvalidSession(sessionId)) {
             logger.error("Bad sessionId: [" + sessionId +"]");
             throw new ExplorerSessionException("No active session");
@@ -32,7 +32,9 @@ public class MoveForwardController {
         }
         PlayerPosition lastPosition = mazeSession.getLastPosition();
         if (lastPosition == null) {
-            return new PlayerPosition(null, -1, -1, MoveStatus.NO_GAME_STARTED.getStatusDescription());        }
+            logger.error("Attempt to make a move on a non-started game: [sessionId=" + sessionId + "]");
+            throw new GameNotStartedException("No active game");
+        }
 
         Maze maze = mazeFacilitator.getMazeByLevel(mazeSession.getLevel());
         Maze.Point size = maze.getSize();

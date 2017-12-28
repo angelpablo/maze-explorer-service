@@ -20,7 +20,7 @@ public class WhatIsInFrontController {
     private MazeFacilitator mazeFacilitator;
 
     @RequestMapping(method = RequestMethod.GET, value = "/what-is-infront")
-    public String getWhatIsInFront(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException {
+    public String getWhatIsInFront(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException, GameNotStartedException {
         if (CotrollerUtils.isInvalidSession(sessionId)) {
             logger.error("Bad sessionId: [" + sessionId +"]");
             throw new ExplorerSessionException("No active session");
@@ -33,7 +33,8 @@ public class WhatIsInFrontController {
         }
         PlayerPosition lastPosition = mazeSession.getLastPosition();
         if (lastPosition == null) {
-            return CotrollerUtils.createNoGameString();
+            logger.error("Attempt to look-up element in-front on a non-started game: [sessionId=" + sessionId + "]");
+            throw new GameNotStartedException("No active game");
         }
 
         Integer level = mazeSession.getLevel();

@@ -8,10 +8,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 @ControllerAdvice(annotations = RestController.class)
 public class ExceptionHandlingController {
+
     @ExceptionHandler(ExplorerSessionException.class)
     public ResponseEntity<String> handleWrongSession() {
         ResponseEntity<String> response = new ResponseEntity<>("Bad Session, bad boy.", HttpStatus.BAD_REQUEST);
         return response;
     }
 
+    @ExceptionHandler(GameNotStartedException.class)
+    public ResponseEntity<String> handleGameNotStarted() {
+        ResponseEntity<String> response = new ResponseEntity<>("Game not started yet", HttpStatus.BAD_REQUEST);
+        return response;
+    }
 }
