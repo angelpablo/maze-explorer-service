@@ -24,16 +24,7 @@ public class StartGameController {
 
     @RequestMapping(method = RequestMethod.PUT, value = "/start")
     public PlayerPosition startGame(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException {
-        if (CotrollerUtils.isInvalidSession(sessionId)) {
-            logger.error("Bad sessionId: [" + sessionId +"]");
-            throw new ExplorerSessionException("No active session");
-        }
-
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
-        if (mazeSession == null) {
-            logger.error("Bad session, bad boy.: [" + sessionId +"]");
-            throw new ExplorerSessionException("No active session");
-        }
         Integer level = mazeSession.getLevel();
         Maze maze = mazeFacilitator.getMazeByLevel(level);
         Maze.Point startPosition = maze.getStartPosition();

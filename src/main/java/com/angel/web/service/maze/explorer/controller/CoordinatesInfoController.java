@@ -26,16 +26,8 @@ public class CoordinatesInfoController {
     public CoordinatesInfo getCoordinatesInfo(@RequestParam(value = "sessionId") Long sessionId,
                                               @RequestParam(value = "x", defaultValue = "0") Integer x,
                                               @RequestParam(value = "y", defaultValue = "0") Integer y) throws ExplorerSessionException {
-        if (CotrollerUtils.isInvalidSession(sessionId)) {
-            logger.error("Bad sessionId: [" + sessionId +"]");
-            throw new ExplorerSessionException("No active session");
-        }
-
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
-        if (mazeSession == null) {
-            logger.error("Bad session, bad boy.: [" + sessionId +"]");
-            throw new ExplorerSessionException("No active session");
-        }
+
         Integer level = mazeSession.getLevel();
         Maze mazeByLevel = mazeFacilitator.getMazeByLevel(level);
         MazeElement mazeElementAt = null;

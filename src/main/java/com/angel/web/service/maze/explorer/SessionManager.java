@@ -1,5 +1,6 @@
 package com.angel.web.service.maze.explorer;
 
+import com.angel.web.service.maze.explorer.controller.ExplorerSessionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,8 +27,12 @@ public final class SessionManager {
         sessionContainer.put(sessionId, mazeSession);
     }
 
-    public static MazeSession getMazeSession(Long sessionId) {
+    public static MazeSession getMazeSession(Long sessionId) throws ExplorerSessionException {
         MazeSession mazeSession = sessionContainer.get(sessionId);
+        if (mazeSession == null) {
+            logger.error("Bad sessionId: [" + sessionId +"]");
+            throw new ExplorerSessionException("No active session");
+        }
         return mazeSession;
     }
 

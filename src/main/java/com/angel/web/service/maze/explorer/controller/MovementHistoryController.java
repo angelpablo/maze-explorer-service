@@ -15,16 +15,7 @@ public class MovementHistoryController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/movements-history")
     public MazeSession getMovementsHistory(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException {
-        if (CotrollerUtils.isInvalidSession(sessionId)) {
-            logger.error("Bad sessionId: [" + sessionId +"]");
-            throw new ExplorerSessionException("No active session");
-        }
-
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
-        if (mazeSession == null) {
-            logger.error("Bad session, bad boy.: [" + sessionId +"]");
-            throw new ExplorerSessionException("No active session");
-        }
         return mazeSession;
     }
 }

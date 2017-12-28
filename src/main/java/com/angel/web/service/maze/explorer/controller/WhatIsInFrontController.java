@@ -21,16 +21,8 @@ public class WhatIsInFrontController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/what-is-infront")
     public String getWhatIsInFront(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException, GameNotStartedException {
-        if (CotrollerUtils.isInvalidSession(sessionId)) {
-            logger.error("Bad sessionId: [" + sessionId +"]");
-            throw new ExplorerSessionException("No active session");
-        }
-
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
-        if (mazeSession == null) {
-            logger.error("Bad session, bad boy.: [" + sessionId +"]");
-            throw new ExplorerSessionException("No active session");
-        }
+
         PlayerPosition lastPosition = mazeSession.getLastPosition();
         if (lastPosition == null) {
             logger.error("Attempt to look-up element in-front on a non-started game: [sessionId=" + sessionId + "]");

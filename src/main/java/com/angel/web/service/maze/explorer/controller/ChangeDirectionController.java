@@ -35,16 +35,7 @@ public class ChangeDirectionController {
     }
 
     private PlayerPosition changeDirectionTo(PlayerDirection direction, Long sessionId) throws ExplorerSessionException, GameNotStartedException {
-        if (CotrollerUtils.isInvalidSession(sessionId)) {
-            logger.error("Bad sessionId: [" + sessionId +"]");
-            throw new ExplorerSessionException("No active session");
-        }
-
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
-        if (mazeSession == null) {
-            logger.error("Possibly expired sessionId: [" + sessionId +"]");
-            throw new ExplorerSessionException("No active session");
-        }
 
         PlayerPosition lastPosition = mazeSession.getLastPosition();
         if (lastPosition == null) {

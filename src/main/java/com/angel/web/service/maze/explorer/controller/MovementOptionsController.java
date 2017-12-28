@@ -25,15 +25,7 @@ public class MovementOptionsController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/movement-options")
     public Collection<PlayerDirection> getMovementOptions(@RequestParam(value = "sessionId") Long sessionId) throws ExplorerSessionException, GameNotStartedException {
-        if (CotrollerUtils.isInvalidSession(sessionId)) {
-            logger.error("Bad sessionId: [" + sessionId +"]");
-            throw new ExplorerSessionException("No active session");
-        }
         MazeSession mazeSession = SessionManager.getMazeSession(sessionId);
-        if (mazeSession == null) {
-            logger.error("Bad session, bad boy.: [" + sessionId +"]");
-            throw new ExplorerSessionException("No active session");
-        }
 
         PlayerPosition lastPosition = mazeSession.getLastPosition();
         if (lastPosition == null) {
